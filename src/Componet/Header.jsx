@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { CgProfile } from "react-icons/cg";
-import Btc from "../assets/images/Btc.jpg";
-import { IoIosMenu } from "react-icons/io";
 import photo from "../assets/images/photo.jpg";
 import { useNavigate } from "react-router-dom";
 
