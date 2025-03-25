@@ -3,8 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import LoadingSpinner from "./components/LoadingSpinner";
 import Home from "./Page/Home";
-import LogIn from "./Page/LogIn";
-import Sign from "./Page/Sign";
 import Dashboard from "./Page/Dashboard";
 import Buy from "./Page/Buy";
 import Sell from "./Page/Sell";
@@ -21,8 +19,8 @@ import Invest from "./Page/Invest";
 import Footer from "./Componet/Footer";
 
 // Lazy load pages
-const Login = lazy(() => import("./Page/Login"));
-const Signup = lazy(() => import("./Page/Signup"));
+const Login = lazy(() => import("./Page/LogIn"));
+const Signup = lazy(() => import("./Page/Sign"));
 
 function App() {
   return (
