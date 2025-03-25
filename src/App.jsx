@@ -1,41 +1,99 @@
-import Header from "./Componet/Header";
-import Home from "./Page/Home";
+import React from "react";
 import { Routes, Route } from "react-router-dom";
+import Home from "./Page/Home";
 import LogIn from "./Page/LogIn";
-import Sigin from "./Page/Sigin";
-import Contact from "./Page/Contact";
-import About from "./Page/About";
-import Profile from "./Page/Profile";
-import Trades from "./Page/Trades";
-import Send from "./Page/Send";
-import Invest from "./Page/Invest";
-import Recive from "./Page/Recive";
+import Sign from "./Page/Sign";
+import Dashboard from "./Page/Dashboard";
 import Buy from "./Page/Buy";
 import Sell from "./Page/Sell";
+import Send from "./Page/Send";
+import Receive from "./Page/Receive";
+import Profile from "./Page/Profile";
+import Settings from "./Page/Settings";
+import ProtectedRoute from "./Componet/ProtectedRoute";
+import Header from "./Componet/Header";
+import Contact from "./Page/Contact";
+import About from "./Page/About";
+import Trades from "./Page/Trades";
+import Invest from "./Page/Invest";
+import Footer from "./Componet/Footer";
 
 function App() {
   return (
-    <>
-      <div className="bg-white">
-        <Header />
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <Header />
+      <main className="flex-grow">
         <Routes>
-          <Route path="/" element={<Home />}></Route>
-          <Route path="/Login" element={<LogIn />}></Route>
-          <Route path="/Sigin" element={<Sigin />}></Route>
-          <Route path="/Contact" element={<Contact />}></Route>
-          <Route path="/About" element={<About />}></Route>
-          <Route path="/Profile" element={<Profile />}></Route>
-          <Route path="/Trades" element={<Trades />}></Route>
-          <Route path="/Send" element={<Send />}></Route>
-          <Route path="/Invest" element={<Invest />}></Route>
-          <Route path="/Recive" element={<Recive />}></Route>
-          <Route path="/Buy" element={<Buy />}></Route>
-          <Route path="/Sell" element={<Sell />}></Route>
-        </Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<LogIn />} />
+          <Route path="/sign" element={<Sign />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/trades" element={<Trades />} />
+          <Route path="/invest" element={<Invest />} />
 
-        {/* <Footer /> */}
-      </div>
-    </>
+          {/* Protected Routes */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/buy"
+            element={
+              <ProtectedRoute>
+                <Buy />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sell"
+            element={
+              <ProtectedRoute>
+                <Sell />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/send"
+            element={
+              <ProtectedRoute>
+                <Send />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/receive"
+            element={
+              <ProtectedRoute>
+                <Receive />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </main>
+      <Footer />
+    </div>
   );
 }
 
