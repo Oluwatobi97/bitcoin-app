@@ -1,15 +1,31 @@
 import React, { useState, useEffect } from "react";
-import { FaBitcoin, FaArrowUp, FaArrowDown, FaChartLine } from "react-icons/fa";
+import {
+  FaBitcoin,
+  FaEthereum,
+  FaDollarSign,
+  FaQrcode,
+  FaCopy,
+} from "react-icons/fa";
 import { authService } from "../services/authService";
+import { QRCodeSVG } from "qrcode.react";
 
 function Invest() {
   const [user, setUser] = useState(null);
-  const [bitcoinPrice, setBitcoinPrice] = useState(45000); // Simulated price
+  const [bitcoinPrice, setBitcoinPrice] = useState(45000);
+  const [ethereumPrice, setEthereumPrice] = useState(2500);
+  const [selectedCrypto, setSelectedCrypto] = useState("bitcoin");
   const [amount, setAmount] = useState("");
-  const [type, setType] = useState("buy");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
-  const [priceChange, setPriceChange] = useState(0);
+  const [showQR, setShowQR] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  // Wallet addresses (replace with actual addresses)
+  const walletAddresses = {
+    bitcoin: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+    ethereum: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    usd: "TRX7NBajuiHgHWTJS1OqwiQetEP3VWm2zX",
+  };
 
   useEffect(() => {
     const currentUser = authService.getCurrentUser();
@@ -19,15 +35,22 @@ function Invest() {
 
     // Simulate real-time price updates
     const interval = setInterval(() => {
-      const change = (Math.random() - 0.5) * 1000;
-      setBitcoinPrice((prev) => prev + change);
-      setPriceChange(change);
+      const btcChange = (Math.random() - 0.5) * 1000;
+      const ethChange = (Math.random() - 0.5) * 100;
+      setBitcoinPrice((prev) => prev + btcChange);
+      setEthereumPrice((prev) => prev + ethChange);
     }, 5000);
 
     return () => clearInterval(interval);
   }, []);
 
-  const handleTransaction = async (e) => {
+  const handleCopyAddress = (address) => {
+    navigator.clipboard.writeText(address);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (!user) return;
 
@@ -35,64 +58,40 @@ function Invest() {
     setMessage({ type: "", text: "" });
 
     try {
-      const transactionAmount = parseFloat(amount);
-      if (isNaN(transactionAmount) || transactionAmount <= 0) {
+      const investmentAmount = parseFloat(amount);
+      if (isNaN(investmentAmount) || investmentAmount <= 0) {
         throw new Error("Please enter a valid amount");
       }
 
-      const transaction = {
-        type,
-        amount: transactionAmount,
-        price: bitcoinPrice,
+      // Here you would typically send this data to your backend
+      const investment = {
+        type: selectedCrypto,
+        amount: investmentAmount,
+        walletAddress: walletAddresses[selectedCrypto],
         date: new Date().toISOString(),
-        total: transactionAmount * bitcoinPrice,
+        status: "pending",
       };
 
-      // Get existing transactions
-      const transactions = JSON.parse(
-        localStorage.getItem(`transactions_${user.id}`) || "[]"
+      // Store investment in localStorage
+      const investments = JSON.parse(
+        localStorage.getItem(`investments_${user.id}`) || "[]"
       );
-      transactions.push(transaction);
+      investments.push(investment);
       localStorage.setItem(
-        `transactions_${user.id}`,
-        JSON.stringify(transactions)
+        `investments_${user.id}`,
+        JSON.stringify(investments)
       );
 
-      // Update user's balance and bitcoin
-      const updatedUser = {
-        ...user,
-        balance:
-          type === "buy"
-            ? user.balance - transaction.total
-            : user.balance + transaction.total,
-        bitcoin:
-          type === "buy"
-            ? user.bitcoin + transactionAmount
-            : user.bitcoin - transactionAmount,
-      };
-
-      // Update user in localStorage
-      const registeredUsers = JSON.parse(
-        localStorage.getItem("registeredUsers") || "[]"
-      );
-      const updatedUsers = registeredUsers.map((u) =>
-        u.id === user.id ? updatedUser : u
-      );
-      localStorage.setItem("registeredUsers", JSON.stringify(updatedUsers));
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-
-      setUser(updatedUser);
       setMessage({
         type: "success",
-        text: `${
-          type === "buy" ? "Bought" : "Sold"
-        } ${transactionAmount} BTC successfully!`,
+        text: "Investment request submitted successfully! Please send the funds to the provided wallet address.",
       });
       setAmount("");
+      setShowQR(true);
     } catch (error) {
       setMessage({
         type: "error",
-        text: error.message || "Transaction failed. Please try again.",
+        text: error.message || "Failed to submit investment request.",
       });
     } finally {
       setLoading(false);
@@ -113,105 +112,107 @@ function Invest() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Price Card */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <div className="flex items-center justify-between">
+      {/* Price Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center space-x-4">
             <FaBitcoin className="w-8 h-8 text-yellow-500" />
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Bitcoin</h2>
-              <p className="text-gray-600">BTC/USD</p>
+              <h2 className="text-xl font-bold text-gray-900">Bitcoin</h2>
+              <p className="text-2xl font-bold text-gray-900">
+                ${bitcoinPrice.toFixed(2)}
+              </p>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-3xl font-bold text-gray-900">
-              ${bitcoinPrice.toFixed(2)}
-            </p>
-            <p
-              className={`flex items-center justify-end ${
-                priceChange >= 0 ? "text-green-500" : "text-red-500"
-              }`}
-            >
-              {priceChange >= 0 ? (
-                <FaArrowUp className="w-4 h-4 mr-1" />
-              ) : (
-                <FaArrowDown className="w-4 h-4 mr-1" />
-              )}
-              {Math.abs(priceChange).toFixed(2)}%
-            </p>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex items-center space-x-4">
+            <FaEthereum className="w-8 h-8 text-blue-500" />
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Ethereum</h2>
+              <p className="text-2xl font-bold text-gray-900">
+                ${ethereumPrice.toFixed(2)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex items-center space-x-4">
+            <FaDollarSign className="w-8 h-8 text-green-500" />
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">USD</h2>
+              <p className="text-2xl font-bold text-gray-900">$1.00</p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Transaction Form */}
+      {/* Investment Form */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-6">
-            Trade Bitcoin
+            Make an Investment
           </h2>
-          <form onSubmit={handleTransaction} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Transaction Type
+                Select Cryptocurrency
               </label>
-              <div className="flex space-x-4">
+              <div className="grid grid-cols-3 gap-4">
                 <button
                   type="button"
-                  onClick={() => setType("buy")}
-                  className={`flex-1 py-2 px-4 rounded-md ${
-                    type === "buy"
-                      ? "bg-green-500 text-white"
-                      : "bg-gray-100 text-gray-700"
+                  onClick={() => setSelectedCrypto("bitcoin")}
+                  className={`p-4 rounded-lg border-2 ${
+                    selectedCrypto === "bitcoin"
+                      ? "border-yellow-500 bg-yellow-50"
+                      : "border-gray-200"
                   }`}
                 >
-                  Buy
+                  <FaBitcoin className="w-6 h-6 text-yellow-500 mx-auto" />
+                  <span className="block mt-2 text-sm">Bitcoin</span>
                 </button>
                 <button
                   type="button"
-                  onClick={() => setType("sell")}
-                  className={`flex-1 py-2 px-4 rounded-md ${
-                    type === "sell"
-                      ? "bg-red-500 text-white"
-                      : "bg-gray-100 text-gray-700"
+                  onClick={() => setSelectedCrypto("ethereum")}
+                  className={`p-4 rounded-lg border-2 ${
+                    selectedCrypto === "ethereum"
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-200"
                   }`}
                 >
-                  Sell
+                  <FaEthereum className="w-6 h-6 text-blue-500 mx-auto" />
+                  <span className="block mt-2 text-sm">Ethereum</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedCrypto("usd")}
+                  className={`p-4 rounded-lg border-2 ${
+                    selectedCrypto === "usd"
+                      ? "border-green-500 bg-green-50"
+                      : "border-gray-200"
+                  }`}
+                >
+                  <FaDollarSign className="w-6 h-6 text-green-500 mx-auto" />
+                  <span className="block mt-2 text-sm">USD</span>
                 </button>
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Amount (BTC)
+                Amount
               </label>
               <input
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                placeholder="0.00000000"
+                placeholder="0.00"
                 step="0.00000001"
                 required
               />
-            </div>
-
-            <div className="bg-gray-50 p-4 rounded-md">
-              <div className="flex justify-between mb-2">
-                <span className="text-gray-600">Current Price</span>
-                <span className="font-medium">${bitcoinPrice.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between mb-2">
-                <span className="text-gray-600">Amount</span>
-                <span className="font-medium">
-                  {amount || "0.00000000"} BTC
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Total</span>
-                <span className="font-medium">
-                  ${((amount || 0) * bitcoinPrice).toFixed(2)}
-                </span>
-              </div>
             </div>
 
             {message.text && (
@@ -229,64 +230,77 @@ function Invest() {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-3 px-4 rounded-md text-white font-medium ${
-                type === "buy"
-                  ? "bg-green-500 hover:bg-green-600"
-                  : "bg-red-500 hover:bg-red-600"
-              } disabled:opacity-50`}
+              className="w-full py-3 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
             >
-              {loading ? (
-                <span className="flex items-center justify-center">
-                  <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Processing...
-                </span>
-              ) : (
-                `${type === "buy" ? "Buy" : "Sell"} Bitcoin`
-              )}
+              {loading ? "Processing..." : "Submit Investment"}
             </button>
           </form>
         </div>
 
-        {/* Balance Card */}
+        {/* Wallet Information */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Your Balance</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-6">
+            Wallet Information
+          </h2>
           <div className="space-y-6">
             <div>
-              <p className="text-sm text-gray-600">Available Balance</p>
-              <p className="text-2xl font-bold text-gray-900">
-                ${user.balance.toFixed(2)}
+              <p className="text-sm text-gray-600 mb-2">
+                Send {selectedCrypto.toUpperCase()} to this address:
               </p>
+              <div className="flex items-center space-x-2 bg-gray-50 p-3 rounded-md">
+                <code className="flex-1 text-sm break-all">
+                  {walletAddresses[selectedCrypto]}
+                </code>
+                <button
+                  onClick={() =>
+                    handleCopyAddress(walletAddresses[selectedCrypto])
+                  }
+                  className="p-2 text-gray-500 hover:text-gray-700"
+                >
+                  <FaCopy className="w-5 h-5" />
+                </button>
+                {copied && (
+                  <span className="text-sm text-green-500">Copied!</span>
+                )}
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-gray-600">Bitcoin Balance</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {user.bitcoin.toFixed(8)} BTC
-              </p>
+
+            <div className="flex justify-center">
+              <button
+                onClick={() => setShowQR(!showQR)}
+                className="flex items-center space-x-2 text-blue-500 hover:text-blue-600"
+              >
+                <FaQrcode className="w-5 h-5" />
+                <span>{showQR ? "Hide QR Code" : "Show QR Code"}</span>
+              </button>
             </div>
-            <div>
-              <p className="text-sm text-gray-600">Total Value</p>
-              <p className="text-2xl font-bold text-gray-900">
-                ${(user.balance + user.bitcoin * bitcoinPrice).toFixed(2)}
-              </p>
+
+            {showQR && (
+              <div className="flex justify-center p-4 bg-white rounded-lg">
+                <QRCodeSVG
+                  value={walletAddresses[selectedCrypto]}
+                  size={200}
+                  level="H"
+                  includeMargin={true}
+                />
+              </div>
+            )}
+
+            <div className="bg-yellow-50 p-4 rounded-md">
+              <h3 className="font-medium text-yellow-800 mb-2">
+                Important Notes:
+              </h3>
+              <ul className="text-sm text-yellow-700 space-y-1">
+                <li>
+                  • Send only {selectedCrypto.toUpperCase()} to this address
+                </li>
+                <li>• Double-check the address before sending</li>
+                <li>
+                  • Minimum investment amount: 0.0001{" "}
+                  {selectedCrypto.toUpperCase()}
+                </li>
+                <li>• Transaction may take 10-30 minutes to confirm</li>
+              </ul>
             </div>
           </div>
         </div>
