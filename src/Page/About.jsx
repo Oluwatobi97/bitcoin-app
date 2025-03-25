@@ -5,6 +5,7 @@ import {
   FaChartLine,
   FaUsers,
   FaGlobe,
+  word,
 } from "react-icons/fa";
 
 function About() {
