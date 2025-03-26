@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm install && vite build",
-    "start": "npm install && vite preview --host",
+    "build": "npm install && npx vite build",
+    "start": "npm install && npx vite preview --host",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
