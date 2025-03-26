@@ -1,129 +1,81 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { authService } from "../services/apiService";
-import Background3D from "../components/Background3D";
-import AnimatedContainer from "../components/AnimatedContainer";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
-export default function Login() {
-  const navigate = useNavigate();
+const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    try {
-      const response = await authService.login(formData);
-      localStorage.setItem("token", response.token);
-      navigate("/dashboard");
-    } catch (err) {
-      setError(err.message || "Failed to login");
-    } finally {
-      setLoading(false);
-    }
+    // Add your login logic here
+    console.log("Login attempt:", formData);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      <Background3D />
-      <div className="w-full max-w-md px-4">
-        <AnimatedContainer>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-8"
-          >
-            <h2 className="text-3xl font-bold text-white mb-2">Welcome Back</h2>
-            <p className="text-gray-300">Sign in to your account</p>
-          </motion.div>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Email
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Sign in to your account
+          </h2>
+        </div>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="rounded-md shadow-sm -space-y-px">
+            <div>
+              <label htmlFor="email" className="sr-only">
+                Email address
               </label>
               <input
-                type="email"
+                id="email"
                 name="email"
-                value={formData.email}
-                onChange={handleChange}
+                type="email"
                 required
-                className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                placeholder="Enter your email"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="Email address"
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
               />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+            </div>
+            <div>
+              <label htmlFor="password" className="sr-only">
                 Password
               </label>
               <input
-                type="password"
+                id="password"
                 name="password"
-                value={formData.password}
-                onChange={handleChange}
+                type="password"
                 required
-                className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                placeholder="Enter your password"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                placeholder="Password"
+                value={formData.password}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
               />
-            </motion.div>
+            </div>
+          </div>
 
-            {error && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-red-500 text-sm"
-              >
-                {error}
-              </motion.div>
-            )}
-
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+          <div>
+            <button
               type="submit"
-              disabled={loading}
-              className="w-full py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
-              {loading ? "Signing in..." : "Sign In"}
-            </motion.button>
-          </form>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="mt-6 text-center"
-          >
-            <p className="text-gray-300">
-              Don't have an account?{" "}
-              <Link to="/signup" className="text-blue-500 hover:text-blue-400">
-                Sign up
-              </Link>
-            </p>
-          </motion.div>
-        </AnimatedContainer>
+              Sign in
+            </button>
+          </div>
+        </form>
+        <div className="text-center">
+          <Link to="/signup" className="text-blue-600 hover:text-blue-500">
+            Don't have an account? Sign up
+          </Link>
+        </div>
       </div>
     </div>
   );
-}
+};
+
+export default Login;

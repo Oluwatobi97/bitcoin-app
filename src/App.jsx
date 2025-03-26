@@ -18,9 +18,20 @@ import Trades from "./Page/Trades";
 import Invest from "./Page/Invest";
 import Footer from "./Componet/Footer";
 
-// Lazy load pages
-const Login = lazy(() => import("./Page/LogIn"));
-const Signup = lazy(() => import("./Page/Sign"));
+// Lazy load pages with proper error boundaries
+const Login = lazy(() =>
+  import("./Page/LogIn").catch((err) => {
+    console.error("Error loading Login:", err);
+    return { default: () => <div>Error loading login page</div> };
+  })
+);
+
+const Signup = lazy(() =>
+  import("./Page/Sign").catch((err) => {
+    console.error("Error loading Signup:", err);
+    return { default: () => <div>Error loading signup page</div> };
+  })
+);
 
 function App() {
   return (
@@ -33,8 +44,22 @@ function App() {
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
+              <Route
+                path="/login"
+                element={
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <Login />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/signup"
+                element={
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <Signup />
+                  </Suspense>
+                }
+              />
               <Route path="/contact" element={<Contact />} />
               <Route path="/about" element={<About />} />
               <Route path="/trades" element={<Trades />} />
