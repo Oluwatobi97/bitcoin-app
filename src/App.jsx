@@ -10,13 +10,13 @@ import Send from "./Page/Send";
 import Receive from "./Page/Receive";
 import Profile from "./Page/Profile";
 import Settings from "./Page/Settings";
-import ProtectedRoute from "./Componet/ProtectedRoute";
-import Header from "./Componet/Header";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Header from "./components/Header";
 import Contact from "./Page/Contact";
 import About from "./Page/About";
 import Trades from "./Page/Trades";
 import Invest from "./Page/Invest";
-import Footer from "./Componet/Footer";
+import Footer from "./components/Footer";
 
 // Lazy load pages with proper error boundaries
 const Login = lazy(() =>
@@ -44,22 +44,8 @@ function App() {
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Home />} />
-              <Route
-                path="/login"
-                element={
-                  <Suspense fallback={<LoadingSpinner />}>
-                    <Login />
-                  </Suspense>
-                }
-              />
-              <Route
-                path="/signup"
-                element={
-                  <Suspense fallback={<LoadingSpinner />}>
-                    <Signup />
-                  </Suspense>
-                }
-              />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/about" element={<About />} />
               <Route path="/trades" element={<Trades />} />
