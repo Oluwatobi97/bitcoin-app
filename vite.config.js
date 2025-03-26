@@ -29,6 +29,9 @@ export default defineConfig({
         drop_console: true,
         drop_debugger: true,
       },
+      format: {
+        comments: false,
+      },
     },
   },
   server: {
@@ -41,5 +44,14 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ["react", "react-dom", "react-router-dom", "framer-motion"],
+    exclude: ["@babel/runtime"],
+  },
+  resolve: {
+    alias: {
+      "@": "/src",
+    },
+  },
+  esbuild: {
+    jsxInject: `import React from 'react'`,
   },
 });
