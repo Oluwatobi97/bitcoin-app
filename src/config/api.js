@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://bitcoin-app-backend.onrender.com";
+const API_BASE_URL = "https://bitcoin-app-backend.vercel.app";
 
 export const API_ENDPOINTS = {
   // Auth endpoints
