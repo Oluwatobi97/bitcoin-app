@@ -96,8 +96,8 @@ function Contact() {
               >
                 Name
               </label>
-              <input
-                type="text"
+            <input
+              type="text"
                 id="name"
                 name="name"
                 value={formData.name}
@@ -120,7 +120,7 @@ function Contact() {
                 value={formData.email}
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                required
+              required
               />
             </div>
             <div>
@@ -130,8 +130,8 @@ function Contact() {
               >
                 Subject
               </label>
-              <input
-                type="text"
+            <input
+              type="text"
                 id="subject"
                 name="subject"
                 value={formData.subject}

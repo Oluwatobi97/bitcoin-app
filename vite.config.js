@@ -35,11 +35,19 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3000,
+    port: 5173,
+    host: true,
     open: true,
+    cors: true,
+    hmr: {
+      overlay: true,
+    },
+    watch: {
+      usePolling: true,
+    },
   },
   preview: {
-    port: 3000,
+    port: 5173,
     open: true,
   },
   optimizeDeps: {
@@ -50,8 +58,5 @@ export default defineConfig({
     alias: {
       "@": "/src",
     },
-  },
-  esbuild: {
-    jsxInject: `import React from 'react'`,
   },
 });

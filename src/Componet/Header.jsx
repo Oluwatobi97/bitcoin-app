@@ -45,7 +45,7 @@ function Header() {
             <Link to="/" className="text-2xl font-bold text-blue-600">
               BitcoinApp
             </Link>
-          </div>
+      </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
@@ -112,7 +112,7 @@ function Header() {
             ))}
             {authLinks.map((link) =>
               link.onClick ? (
-                <button
+          <button
                   key={link.name}
                   onClick={() => {
                     link.onClick();
@@ -134,8 +134,8 @@ function Header() {
                 </Link>
               )
             )}
-          </div>
-        </div>
+      </div>
+    </div>
       )}
     </header>
   );

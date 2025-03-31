@@ -7,7 +7,7 @@ import {
   FaCopy,
 } from "react-icons/fa";
 import { authService } from "../services/authService";
-import { QRCodeSVG } from "qrcode.react";
+// import { QRCode } from "qrcode.react";
 
 function Invest() {
   const [user, setUser] = useState(null);
@@ -17,7 +17,7 @@ function Invest() {
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
-  const [showQR, setShowQR] = useState(false);
+  // const [showQR, setShowQR] = useState(false);
   const [copied, setCopied] = useState(false);
 
   // Wallet addresses (replace with actual addresses)
@@ -87,7 +87,7 @@ function Invest() {
         text: "Investment request submitted successfully! Please send the funds to the provided wallet address.",
       });
       setAmount("");
-      setShowQR(true);
+      // setShowQR(true);
     } catch (error) {
       setMessage({
         type: "error",
@@ -266,25 +266,25 @@ function Invest() {
             </div>
 
             <div className="flex justify-center">
-              <button
+              {/* <button
                 onClick={() => setShowQR(!showQR)}
                 className="flex items-center space-x-2 text-blue-500 hover:text-blue-600"
               >
                 <FaQrcode className="w-5 h-5" />
                 <span>{showQR ? "Hide QR Code" : "Show QR Code"}</span>
-              </button>
+              </button> */}
             </div>
 
-            {showQR && (
+            {/* {showQR && (
               <div className="flex justify-center p-4 bg-white rounded-lg">
-                <QRCodeSVG
+                <QRCode
                   value={walletAddresses[selectedCrypto]}
                   size={200}
                   level="H"
                   includeMargin={true}
                 />
               </div>
-            )}
+            )} */}
 
             <div className="bg-yellow-50 p-4 rounded-md">
               <h3 className="font-medium text-yellow-800 mb-2">

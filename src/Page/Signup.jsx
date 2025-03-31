@@ -1,11 +1,10 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { FaGoogle, FaFacebook, FaBitcoin } from "react-icons/fa";
 import { motion } from "framer-motion";
-import { authService } from "../services/apiService";
-import Background3D from "../components/Background3D";
-import AnimatedContainer from "../components/AnimatedContainer";
+import { authService } from "../services/authService";
 
-export default function Signup() {
+function Signup() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
@@ -17,7 +16,10 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -32,56 +34,148 @@ export default function Signup() {
     setLoading(true);
 
     try {
-      const response = await authService.signup({
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-      });
-      localStorage.setItem("token", response.token);
+      await authService.signup(
+        formData.name,
+        formData.email,
+        formData.password
+      );
       navigate("/dashboard");
     } catch (err) {
-      setError(err.message || "Failed to create account");
+      setError(err.message || "Failed to create account. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSocialSignup = async (provider) => {
+    setError("");
+    setLoading(true);
+
+    try {
+      await authService.socialLogin(provider);
+      navigate("/dashboard");
+    } catch (err) {
+      setError(
+        err.message || `Failed to sign up with ${provider}. Please try again.`
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      <Background3D />
-      <div className="w-full max-w-md px-4">
-        <AnimatedContainer>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-8"
-          >
+    <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center px-4">
+      <div className="max-w-md w-full">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="bg-[#2d2d2d] rounded-2xl p-8 shadow-xl"
+        >
+          <div className="text-center mb-8">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2 }}
+              className="inline-block p-3 bg-[#f7931a]/20 rounded-full mb-4"
+            >
+              <FaBitcoin className="text-4xl text-[#f7931a]" />
+            </motion.div>
             <h2 className="text-3xl font-bold text-white mb-2">
-              Create Account
+              Create Your Account
             </h2>
-            <p className="text-gray-300">
-              Join our Bitcoin investment platform
+            <p className="text-gray-400">
+              Join our platform to start your cryptocurrency investment journey
             </p>
-          </motion.div>
+          </div>
+
+          {/* Social Signup Buttons */}
+          <div className="grid grid-cols-2 gap-4 mb-8">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleSocialSignup("google")}
+              className="flex items-center justify-center p-3 bg-[#3d3d3d] hover:bg-[#4d4d4d] rounded-lg transition-colors"
+              disabled={loading}
+            >
+              <FaGoogle className="text-red-500 text-xl" />
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleSocialSignup("facebook")}
+              className="flex items-center justify-center p-3 bg-[#3d3d3d] hover:bg-[#4d4d4d] rounded-lg transition-colors"
+              disabled={loading}
+            >
+              <FaFacebook className="text-blue-500 text-xl" />
+            </motion.button>
+          </div>
+
+          <div className="relative mb-8">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-[#3d3d3d]"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-[#2d2d2d] text-gray-400">
+                Or continue with email
+              </span>
+            </div>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-lg text-sm"
+              >
+                {error}
+              </motion.div>
+            )}
+
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-300 mb-2"
+              >
+                Full Name
+              </label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                required
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full px-4 py-3 bg-[#3d3d3d] border border-[#4d4d4d] rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#f7931a] focus:border-transparent transition-all duration-200"
+                placeholder="Enter your full name"
+              />
+            </motion.div>
+
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Full Name
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-300 mb-2"
+              >
+                Email address
               </label>
               <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
+                id="email"
+                name="email"
+                type="email"
                 required
-                className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                placeholder="Enter your full name"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full px-4 py-3 bg-[#3d3d3d] border border-[#4d4d4d] rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#f7931a] focus:border-transparent transition-all duration-200"
+                placeholder="Enter your email"
               />
             </motion.div>
 
@@ -90,17 +184,21 @@ export default function Signup() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Email
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-300 mb-2"
+              >
+                Password
               </label>
               <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
+                id="password"
+                name="password"
+                type="password"
                 required
-                className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                placeholder="Enter your email"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full px-4 py-3 bg-[#3d3d3d] border border-[#4d4d4d] rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#f7931a] focus:border-transparent transition-all duration-200"
+                placeholder="Create a password"
               />
             </motion.div>
 
@@ -109,17 +207,21 @@ export default function Signup() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4 }}
             >
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Password
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-300 mb-2"
+              >
+                Confirm Password
               </label>
               <input
+                id="confirmPassword"
+                name="confirmPassword"
                 type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
                 required
-                className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                placeholder="Create a password"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className="w-full px-4 py-3 bg-[#3d3d3d] border border-[#4d4d4d] rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#f7931a] focus:border-transparent transition-all duration-200"
+                placeholder="Confirm your password"
               />
             </motion.div>
 
@@ -127,57 +229,65 @@ export default function Signup() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.5 }}
+              className="flex items-center"
             >
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Confirm Password
-              </label>
               <input
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
+                id="terms"
+                name="terms"
+                type="checkbox"
                 required
-                className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                placeholder="Confirm your password"
+                className="h-4 w-4 text-[#f7931a] focus:ring-[#f7931a] border-gray-600 rounded bg-[#3d3d3d]"
               />
-            </motion.div>
-
-            {error && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-red-500 text-sm"
+              <label
+                htmlFor="terms"
+                className="ml-2 block text-sm text-gray-300"
               >
-                {error}
-              </motion.div>
-            )}
+                I agree to the{" "}
+                <Link
+                  to="/terms"
+                  className="text-[#f7931a] hover:text-[#e67e0a] transition-colors"
+                >
+                  Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link
+                  to="/privacy"
+                  className="text-[#f7931a] hover:text-[#e67e0a] transition-colors"
+                >
+                  Privacy Policy
+                </Link>
+              </label>
+            </motion.div>
 
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-[#f7931a] hover:bg-[#e67e0a] text-white py-3 px-4 rounded-lg font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-[#f7931a]/25"
             >
-              {loading ? "Creating account..." : "Create Account"}
+              {loading ? "Creating account..." : "Create account"}
             </motion.button>
           </form>
 
-          <motion.div
+          <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="mt-6 text-center"
+            transition={{ delay: 0.4 }}
+            className="mt-8 text-center text-sm text-gray-300"
           >
-            <p className="text-gray-300">
-              Already have an account?{" "}
-              <Link to="/login" className="text-blue-500 hover:text-blue-400">
-                Sign in
-              </Link>
-            </p>
-          </motion.div>
-        </AnimatedContainer>
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="text-[#f7931a] hover:text-[#e67e0a] transition-colors"
+            >
+              Sign in
+            </Link>
+          </motion.p>
+        </motion.div>
       </div>
     </div>
   );
 }
+
+export default Signup;
